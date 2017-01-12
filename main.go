@@ -44,6 +44,10 @@ func (ds * DataStore) close() {
 	ds.session.Close()
 }
 
+func (ds * DataStore) copy() *DataStore {
+	return &DataStore{ds.session.Copy()}
+}
+
 func (ds * DataStore) addCommit(commit Commit) error {
 	c := ds.session.DB("commits_ontem").C("commits")
 	err := c.Insert(commit)
@@ -124,17 +128,20 @@ func viewHandler(w http.ResponseWriter, r *http.Request, ds *DataStore) {
 	renderTemplate(w, "view", p)
 }
 
-func makeHandler(fn func(http.ResponseWriter, *http.Request, *DataStore)) http.HandlerFunc {
+func makeHandler(fn func(http.ResponseWriter, *http.Request, *DataStore), dsMaster *DataStore) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		ds := &DataStore{}
-		ds.init()
+		ds := dsMaster.copy()
 		defer ds.close()
 		fn(w, r, ds)
 	}
 }
 
 func main() {
-	http.HandleFunc("/", makeHandler(viewHandler))
+	ds := &DataStore{}
+	ds.init()
+	defer ds.close()
+
+	http.HandleFunc("/", makeHandler(viewHandler, ds))
 
 	http.ListenAndServe(":8080", nil)
 }
