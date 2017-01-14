@@ -15,6 +15,9 @@ func getActualDate() time.Time {
 }
 
 func getDate(format string, y, m, d int) string {
-	date := getActualDate()
-	return date.AddDate(y, m, d).Format(format)
+	return getActualDate().AddDate(y, m, d).Format(format)
+}
+
+func getDateTime(y, m, d int) time.Time {
+	return getActualDate().AddDate(y, m, d)
 }

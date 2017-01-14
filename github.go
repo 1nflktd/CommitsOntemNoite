@@ -18,8 +18,11 @@ func (ds * DataStore) addCommit(commit Commit) error {
 func (ds * DataStore) getCommits() (*Commits, error) {
 	c := ds.session.DB("commits_ontem").C("commits")
 	commits := Commits{}
-	//err := c.Find(bson.M{"committer_date" : getDate("2006-01-02", 0, 0, -1)}).Limit(100).All(&commits.Items)
-	err := c.Find(bson.M{}).Limit(100).All(&commits.Items)
+	err := c.Find(bson.M{
+		"committer_date" : bson.M{
+			"$gte" : getDateTime(0, 0, -1),
+		},
+	}).Limit(100).All(&commits.Items)
 	return &commits, err
 }
 
