@@ -14,7 +14,7 @@ func getActualDate() time.Time {
 	return date
 }
 
-func getDate(format string, y, m, d int) string {
+func getDateFormat(format string, y, m, d int) string {
 	return getActualDate().AddDate(y, m, d).Format(format)
 }
 
@@ -30,4 +30,8 @@ func getOnlyDate(y, m, d int) time.Time {
 		return date
 	}
 	return time.Date(year, month, day, 0, 0, 0, 0, location)
+}
+
+func getOnlyDateFormat(format string, y, m, d int) string {
+	return getOnlyDate(y, m, d).Format(format)
 }

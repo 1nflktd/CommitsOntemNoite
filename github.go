@@ -21,6 +21,7 @@ func (ds * DataStore) getCommits() (*Commits, error) {
 	err := c.Find(bson.M{
 		"committer_date" : bson.M{
 			"$gte" : getOnlyDate(0, 0, -1),
+			"$lte" : getOnlyDate(0, 0, 0),
 		},
 	}).Limit(100).All(&commits.Items)
 	return &commits, err
@@ -40,7 +41,7 @@ func getCommitsAPI() (*Commits, error) {
 	searchWords := []string{/*"merda", "coco", "cagada", "droga", "desgraça", "bosta", "pqp", "caralho", */"shit"}
 	url := "https://api.github.com/search/commits?q="
 	url += strings.Join(searchWords, "+")
-	url += "+committer-date:" + getDate("2006-01-02", 0, 0, -1) // Y-m-d
+	url += "+committer-date:" + getOnlyDateFormat("2006-01-02", 0, 0, -1) // Y-m-d
 
 	client := &http.Client{Timeout: 30 * time.Second}
 
