@@ -20,7 +20,7 @@ func (ds * DataStore) getCommits() (*Commits, error) {
 	commits := Commits{}
 	err := c.Find(bson.M{
 		"committer_date" : bson.M{
-			"$gte" : getDateTime(0, 0, -1),
+			"$gte" : getOnlyDate(0, 0, -1),
 		},
 	}).Limit(100).All(&commits.Items)
 	return &commits, err
@@ -37,8 +37,6 @@ func (ds * DataStore) truncateCommits() error {
 /// -H 'Accept: application/vnd.github.cloak-preview'
 
 func getCommitsAPI() (*Commits, error) {
-	fmt.Printf("getCommitsAPI\n")
-
 	searchWords := []string{/*"merda", "coco", "cagada", "droga", "desgraça", "bosta", "pqp", "caralho", */"shit"}
 	url := "https://api.github.com/search/commits?q="
 	url += strings.Join(searchWords, "+")
@@ -71,8 +69,6 @@ func getCommitsAPI() (*Commits, error) {
 }
 
 func getCommitsDB(ds *DataStore) (*Commits, error) {
-	fmt.Printf("getCommitsDB\n")
-
 	commits, err := ds.getCommits()
 
 	if err != nil {
@@ -98,8 +94,6 @@ func saveCommitsDB(ds *DataStore, commits *Commits) (err error) {
 }
 
 func getCommits(ds *DataStore) (*Commits, error) {
-	fmt.Printf("getCommits\n")
-
 	data, err := getCommitsDB(ds)
 	if err != nil {
 		return nil, err
@@ -115,4 +109,3 @@ func getCommits(ds *DataStore) (*Commits, error) {
 
 	return data, nil
 }
-
