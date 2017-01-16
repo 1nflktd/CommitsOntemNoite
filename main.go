@@ -3,7 +3,8 @@ package main
 import (
 	"html/template"
 	"net/http"
-	"fmt"
+	"log"
+	"os"
 )
 
 var templates = template.Must(template.ParseFiles("templates/view.html"))
@@ -30,7 +31,7 @@ func renderTemplate(w http.ResponseWriter, templ string, p *Page) {
 func viewHandler(w http.ResponseWriter, r *http.Request, ds *DataStore) {
 	p, err := loadPage(ds)
 	if err != nil {
-		fmt.Printf("Erro loadPage: %v\n", err)
+		log.Printf("error loadPage\nerror: %v\n", err)
 		return
 	}
 	renderTemplate(w, "view", p)
@@ -45,11 +46,17 @@ func makeHandler(fn func(http.ResponseWriter, *http.Request, *DataStore), dsMast
 }
 
 func main() {
+	port := os.Getenv("PORT")
+
+    if port == "" {
+        log.Fatal("$PORT must be set")
+    }
+
 	ds := &DataStore{}
 	ds.init()
 	defer ds.close()
 
 	http.HandleFunc("/", makeHandler(viewHandler, ds))
 
-	http.ListenAndServe(":8080", nil)
+	http.ListenAndServe(":" + port, nil)
 }
