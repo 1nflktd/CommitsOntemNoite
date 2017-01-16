@@ -52,8 +52,14 @@ func main() {
         log.Fatal("$PORT must be set")
     }
 
+    address := os.Getenv("DATABASE_URL")
+
+    if address == "" {
+    	log.Fatal("$DATABASE_URL must be set")
+    }
+
 	ds := &DataStore{}
-	ds.init()
+	ds.init(address)
 	defer ds.close()
 
 	http.HandleFunc("/", makeHandler(viewHandler, ds))

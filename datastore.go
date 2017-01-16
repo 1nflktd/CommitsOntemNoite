@@ -2,16 +2,18 @@ package main
 
 import (
 	"gopkg.in/mgo.v2"
+	"log"
 )
 
 type DataStore struct {
     session *mgo.Session
 }
 
-func (ds * DataStore) init() {
+func (ds * DataStore) init(address string) {
 	var err error
-	ds.session, err = mgo.Dial("127.0.0.1")
+	ds.session, err = mgo.Dial(address)
 	if err != nil {
+		log.Fatal("Error opening database\nerror: %v\n", err)
 		panic(err)
 	}
 }
