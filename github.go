@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"time"
 	"net/http"
-	"fmt"
+	"log"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -43,18 +43,23 @@ func getCommitsAPI() (*Commits, error) {
 	url += strings.Join(searchWords, "+")
 	url += "+committer-date:" + getOnlyDateFormat("2006-01-02", 0, 0, -1) // Y-m-d
 
+	log.Printf("call getCommitsAPI\nurl: %v\n", url)
+
 	client := &http.Client{Timeout: 30 * time.Second}
 
 	request, err := http.NewRequest("GET", url, nil)
+
 	if err != nil {
+		log.Printf("error new request\nerror: %v\n", err)
 		return nil, err
 	}
+
 	request.Header.Set("Accept", "application/vnd.github.cloak-preview")
 	request.Header.Set("User-Agent", "CommitsNoiteOntem")
 		
 	res, err := client.Do(request)
 	if err != nil {
-		fmt.Printf("Error na chamada: %v\n", err)
+		log.Printf("error receiving data\nerror: %v\n", err)
 		return nil, err
 	}
 	defer res.Body.Close()
@@ -62,7 +67,9 @@ func getCommitsAPI() (*Commits, error) {
 	decoder := json.NewDecoder(res.Body)
 	var data Commits
 	err = decoder.Decode(&data)
+
 	if err != nil {
+		log.Printf("error decoding data\nerror: %v\n", err)
         return nil, err
 	}
 	
@@ -73,11 +80,13 @@ func getCommitsDB(ds *DataStore) (*Commits, error) {
 	commits, err := ds.getCommits()
 
 	if err != nil {
+		log.Printf("error call getCommitsDB\nerror: %v\n", err)
 		return nil, err
 	}
 
 	if len(commits.Items) == 0 { // database nao contem dados de ontem, entao pesquisar
 		ds.truncateCommits()
+		log.Printf("truncate commits\n")
 		return nil, nil
 	}
 
