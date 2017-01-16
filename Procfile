@@ -1,1 +1,1 @@
-web: CommitsOntemNoite
+web: ./CommitsOntemNoite
