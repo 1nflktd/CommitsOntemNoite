@@ -14,7 +14,6 @@ func (ds * DataStore) init(address string) {
 	ds.session, err = mgo.Dial(address)
 	if err != nil {
 		log.Fatal("Error opening database\nerror: %v\n", err)
-		panic(err)
 	}
 }
 
