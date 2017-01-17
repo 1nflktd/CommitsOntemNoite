@@ -1,0 +1,22 @@
+{{ template "header" . }}
+<table class="table">
+	<thead>
+		<tr>
+			<th>Mensagem</th>
+			<th>Autor</th>
+			<th>Data</th>
+		</tr>
+	</thead>
+	<tbody>
+		{{ with .Body }}
+			{{ range .}}
+				<tr>
+					<td>{{ .Message }}</td>
+					<td>{{ .AuthorName }}</td>
+					<td>{{ .CommitterDate }}</td>
+				</tr>
+			{{ end }}
+		{{ end }}
+	</tbody>
+</table>
+{{ template "footer" . }}

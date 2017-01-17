@@ -7,7 +7,7 @@ import (
 	"os"
 )
 
-var templates = template.Must(template.ParseFiles("templates/view.html"))
+var templates = template.Must(template.ParseFiles("templates/view.tmpl", "templates/header.tmpl", "templates/footer.tmpl"))
 
 type Page struct {
 	Body []Commit
@@ -22,10 +22,12 @@ func loadPage(ds *DataStore) (*Page, error) {
 }
 
 func renderTemplate(w http.ResponseWriter, templ string, p *Page) {
-	err := templates.ExecuteTemplate(w, templ + ".html", p)
+	templates.ExecuteTemplate(w, "header.tmpl", p)
+	err := templates.ExecuteTemplate(w, templ + ".tmpl", p)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
+	templates.ExecuteTemplate(w, "footer.tmpl", p)
 }
 
 func viewHandler(w http.ResponseWriter, r *http.Request, ds *DataStore) {
@@ -62,6 +64,7 @@ func main() {
 	ds.init(address)
 	defer ds.close()
 
+	http.Handle("/public/", http.StripPrefix("/public/", http.FileServer(http.Dir("public"))))
 	http.HandleFunc("/", makeHandler(viewHandler, ds))
 
 	http.ListenAndServe(":" + port, nil)
