@@ -1,7 +1,6 @@
 package main
 
 import (
-	"strings"
 	"encoding/json"
 	"time"
 	"net/http"
@@ -38,10 +37,24 @@ func (ds * DataStore) truncateCommits() error {
 /// -H 'Accept: application/vnd.github.cloak-preview'
 
 func getCommitsAPI() (*Commits, error) {
-	searchWords := []string{/*"merda", "coco", "cagada", "droga", "desgraça", "bosta", "pqp", "caralho", */"shit"}
+	var err error
+	commits := &Commits{}
+	searchWords := []string{"merda", "coco", "cagada", "droga", "desgraca", "bosta", "pqp", "caralho"} //, "shit"
+	for _, searchWord := range searchWords {
+		commitsAPI, err := getCommitsAPIByWord(searchWord)
+		if err != nil {
+			break
+		} else {
+			commits.Items = append(commits.Items, commitsAPI.Items...)
+		}
+	}
+	return commits, err
+}
+
+func getCommitsAPIByWord(searchWord string) (*Commits, error) {
 	url := "https://api.github.com/search/commits?q="
-	url += strings.Join(searchWords, "+")
-	url += "+committer-date:" + getOnlyDateFormat("2006-01-02", 0, 0, -1) // Y-m-d
+	url += searchWord + "+"
+	url += "committer-date:" + getOnlyDateFormat("2006-01-02", 0, 0, -1) // Y-m-d
 
 	log.Printf("call getCommitsAPI\nurl: %v\n", url)
 
@@ -77,6 +90,8 @@ func getCommitsAPI() (*Commits, error) {
 }
 
 func getCommitsDB(ds *DataStore) (*Commits, error) {
+	log.Printf("calling getCommitsDB\n");
+
 	commits, err := ds.getCommits()
 
 	if err != nil {
